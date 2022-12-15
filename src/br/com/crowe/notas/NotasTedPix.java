@@ -296,13 +296,18 @@ public class NotasTedPix implements AcaoRotinaJava {
 						+ "        cobranca@crowe.com.br\r\n" + site + "";
 				char[] assuntoEmailchar = assuntoEmail.toCharArray();
 
-				String queryEmail = (""
-						+ " SELECT CTT.CODCONTATO, CTT.ATIVO, CTT.RECEBEBOLETOEMAIL, CTT.CODPARC, PAR.NOMEPARC, CTT.EMAIL AS EMAIL FROM TGFCTT CTT"
-						+ " INNER JOIN TGFPAR PAR ON PAR.CODPARC = CTT.CODPARC"
-						+ " WHERE CODCONTATO IN (1)"
-						+ " AND PAR.CODPARC = "+codParc
-						+ " AND CTT.RECEBEBOLETOEMAIL = 'S'"
-						+ " AND CTT.ATIVO = 'S'");
+				String queryEmail = ("SELECT DISTINCT CTT.CODCONTATO AS CONTATO, CTT.ATIVO, CTT.RECEBEBOLETOEMAIL, CTT.CODPARC, PAR.NOMEPARC, CTT.EMAIL AS EMAIL "
+						+ " FROM "
+						+ " TGFCTT CTT "
+						+ " INNER JOIN TGFPAR PAR ON PAR.CODPARC = CTT.CODPARC "
+						+ " WHERE "
+						+ "  PAR.CODPARC = " +codParc
+						+ " AND CTT.CODCONTATO IN (SELECT MIN(CODCONTATO) "
+						+ "							FROM TGFCTT CTT2 "
+						+ "							WHERE CTT2.CODPARC = PAR.CODPARC  "
+						+ "							AND  CTT2.ATIVO = 'S' "
+						+ "							AND CTT2.RECEBEBOLETOEMAIL = 'S' "
+						+ "							AND CTT2.EMAIL NOT IN ('cobranca@crowe.com.br                                                           '))");
 
 				ResultSet rsEmail = nativeSql.executeQuery(queryEmail);
 				System.out.println(rsEmail);
